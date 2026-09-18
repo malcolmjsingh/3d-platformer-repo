@@ -1,0 +1,128 @@
+[gd_scene format=3 uid="uid://wx3stvj2ku7d"]
+
+[ext_resource type="Script" uid="uid://c2uvmon2tno80" path="res://player/scripts/player.gd" id="1_onrkg"]
+[ext_resource type="Script" uid="uid://dxndd3j73legb" path="res://global/classes/StateMachine.gd" id="3_boad6"]
+[ext_resource type="Script" uid="uid://thtr5pbd3stb" path="res://player/states/idle_state.gd" id="4_rgyib"]
+[ext_resource type="Script" uid="uid://c7184g5joq24b" path="res://player/states/running_state.gd" id="5_hg6s5"]
+[ext_resource type="Script" uid="uid://dggnb8qfbkm15" path="res://player/states/falling_state.gd" id="6_8t03j"]
+[ext_resource type="Script" uid="uid://65u4f714q6jn" path="res://player/states/jumping_state.gd" id="7_2ieo8"]
+[ext_resource type="PackedScene" uid="uid://bs2ltpddqrn85" path="res://player/guy.glb" id="8_hg6s5"]
+[ext_resource type="Script" uid="uid://b666gkni7cqeb" path="res://player/scripts/label.gd" id="8_rgyib"]
+[ext_resource type="Script" uid="uid://0xx5qud5oq5n" path="res://player/scripts/substate_label.gd" id="9_hg6s5"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_onrkg"]
+radius = 0.57958984
+height = 2.9001465
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1jxqw"]
+animation = &"falling"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_i3pqv"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hqtel"]
+animation = &"fwd_walk"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_sweqy"]
+animation = &"fwd_run"
+
+[sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_2hs0m"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_i3pqv")
+blend_point_0/pos = 0.0
+blend_point_1/node = SubResource("AnimationNodeAnimation_hqtel")
+blend_point_1/pos = 0.6
+blend_point_2/node = SubResource("AnimationNodeAnimation_sweqy")
+blend_point_2/pos = 1.0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dw050"]
+animation = &"jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rgyib"]
+animation = &"crouch_idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_b26j0"]
+xfade_time = 0.2
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_n7ghd"]
+xfade_time = 0.2
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nvl01"]
+xfade_time = 0.2
+reset = false
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_onrkg"]
+xfade_time = 0.1
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hg6s5"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_ivps1"]
+states/Fall/node = SubResource("AnimationNodeAnimation_1jxqw")
+states/Fall/position = Vector2(592.6666, 51.25926)
+states/Ground/node = SubResource("AnimationNodeBlendSpace1D_2hs0m")
+states/Ground/position = Vector2(438, 51.333332)
+states/Jump/node = SubResource("AnimationNodeAnimation_dw050")
+states/Jump/position = Vector2(426.8889, 154)
+states/crouch_idle/node = SubResource("AnimationNodeAnimation_rgyib")
+states/crouch_idle/position = Vector2(494, -52.666668)
+transitions = ["Ground", "Fall", SubResource("AnimationNodeStateMachineTransition_b26j0"), "Jump", "Fall", SubResource("AnimationNodeStateMachineTransition_n7ghd"), "Fall", "Ground", SubResource("AnimationNodeStateMachineTransition_nvl01"), "Ground", "Jump", SubResource("AnimationNodeStateMachineTransition_onrkg"), "Ground", "crouch_idle", SubResource("AnimationNodeStateMachineTransition_hg6s5")]
+graph_offset = Vector2(-34, -93)
+
+[node name="player" type="CharacterBody3D" unique_id=2140352443]
+script = ExtResource("1_onrkg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1336004670]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4653918, 0)
+shape = SubResource("CapsuleShape3D_onrkg")
+
+[node name="guy" parent="." unique_id=11235272 instance=ExtResource("8_hg6s5")]
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=1372028274]
+root_node = NodePath("../guy")
+tree_root = SubResource("AnimationNodeStateMachine_ivps1")
+anim_player = NodePath("../guy/AnimationPlayer")
+parameters/Ground/blend_position = 0.0
+
+[node name="cameraPivot" type="Node3D" parent="." unique_id=451834172]
+
+[node name="playerCamera" type="Camera3D" parent="cameraPivot" unique_id=293253184]
+transform = Transform3D(0.6853991, 0.20050251, -0.7000192, 0, 0.96134347, 0.27535212, 0.72816765, -0.18872608, 0.6589039, -3.3024745, 4.078516, 2.5041103)
+
+[node name="StateMachine" type="Node" parent="." unique_id=1376085965 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("3_boad6")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine" unique_id=201181310]
+script = ExtResource("4_rgyib")
+
+[node name="Running" type="Node" parent="StateMachine" unique_id=93510522]
+script = ExtResource("5_hg6s5")
+
+[node name="Falling" type="Node" parent="StateMachine" unique_id=948783684]
+script = ExtResource("6_8t03j")
+
+[node name="Jumping" type="Node" parent="StateMachine" unique_id=705086909]
+script = ExtResource("7_2ieo8")
+
+[node name="StateLabel" type="Label" parent="." unique_id=1407258392 node_paths=PackedStringArray("state_machine")]
+offset_left = 15.0
+offset_top = 15.0
+offset_right = 370.0
+offset_bottom = 170.0
+theme_override_font_sizes/font_size = 31
+text = "test"
+script = ExtResource("8_rgyib")
+state_machine = NodePath("../StateMachine")
+
+[node name="SubStateLabel" type="Label" parent="." unique_id=1335008422]
+offset_left = 15.0
+offset_top = 15.0
+offset_right = 55.0
+offset_bottom = 38.0
+script = ExtResource("9_hg6s5")
+
+[editable path="guy"]
